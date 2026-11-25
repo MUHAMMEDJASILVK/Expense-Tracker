@@ -1,0 +1,299 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Expense Tracker | Dashboard</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6fb;
+            color: #333;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: #ffffff;
+            padding: 18px 7%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: bold;
+            color: #2563eb;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .username {
+            font-weight: bold;
+        }
+
+        .logout {
+            text-decoration: none;
+            background: #ef4444;
+            color: white;
+            padding: 9px 18px;
+            border-radius: 7px;
+        }
+
+        /* Main container */
+        .container {
+            width: 86%;
+            margin: 35px auto;
+        }
+
+        .welcome {
+            margin-bottom: 25px;
+        }
+
+        .welcome h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .welcome p {
+            color: #777;
+        }
+
+        /* Summary cards */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 22px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.05);
+        }
+
+        .card p {
+            color: #777;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .card h2 {
+            font-size: 27px;
+        }
+
+        .income h2 {
+            color: #16a34a;
+        }
+
+        .expense h2 {
+            color: #ef4444;
+        }
+
+        .balance h2 {
+            color: #2563eb;
+        }
+
+        /* Action buttons */
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .action-btn {
+            text-decoration: none;
+            padding: 13px 22px;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .add-income {
+            background: #16a34a;
+        }
+
+        .add-expense {
+            background: #ef4444;
+        }
+
+        .transactions {
+            background: #2563eb;
+        }
+
+        /* Recent transactions */
+        .section {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.05);
+        }
+
+        .section h2 {
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .transaction {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .transaction:last-child {
+            border-bottom: none;
+        }
+
+        .transaction p {
+            color: #777;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .amount-income {
+            color: #16a34a;
+            font-weight: bold;
+        }
+
+        .amount-expense {
+            color: #ef4444;
+            font-weight: bold;
+        }
+
+        .empty {
+            color: #888;
+            padding: 10px 0;
+        }
+
+        @media (max-width: 768px) {
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                width: 92%;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .navbar {
+                padding: 15px 4%;
+            }
+
+            .nav-right {
+                gap: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="logo">Expense Tracker</div>
+
+        <div class="nav-right">
+            <span class="username">{{ request.user.username }}</span>
+            <a href="{% url 'logout' %}" class="logout">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <div class="welcome">
+            <h1>Welcome, {{ request.user.username }}!</h1>
+            <p>Here's an overview of your finances.</p>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="cards">
+
+            <div class="card income">
+                <p>Total Income</p>
+                <h2>₹ {{ total_income }}</h2>
+            </div>
+
+            <div class="card expense">
+                <p>Total Expenses</p>
+                <h2>₹ {{ total_expense }}</h2>
+            </div>
+
+            <div class="card balance">
+                <p>Available Balance</p>
+                <h2>₹ {{ balance }}</h2>
+            </div>
+
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="actions">
+            <a href="{% url 'add_income' %}" class="action-btn add-income">
+            + Add Income</a>
+            <a href="{% url 'add_expense' %}" class="action-btn add-expense">
+            + Add Expense</a>
+            <a href="{% url 'transactions' %}" class="action-btn transactions">
+            View Transactions</a>
+        </div>
+
+        <!-- Recent Income -->
+        <div class="section">
+            <h2>Recent Income</h2>
+
+            {% for item in recent_income %}
+                <div class="transaction">
+                    <div>
+                        <strong>{{ item.source }}</strong>
+                        <p>{{ item.date }}</p>
+                    </div>
+
+                    <span class="amount-income">
+                        + ₹ {{ item.amount }}
+                    </span>
+                </div>
+            {% empty %}
+                <p class="empty">No income records found.</p>
+            {% endfor %}
+        </div>
+
+        <!-- Recent Expenses -->
+        <div class="section">
+            <h2>Recent Expenses</h2>
+
+            {% for item in recent_expense %}
+                <div class="transaction">
+                    <div>
+                        <strong>{{ item.title }}</strong>
+                        <p>{{ item.category }} | {{ item.date }}</p>
+                    </div>
+
+                    <span class="amount-expense">
+                        - ₹ {{ item.amount }}
+                    </span>
+                </div>
+            {% empty %}
+                <p class="empty">No expense records found.</p>
+            {% endfor %}
+        </div>
+
+    </div>
+
+</body>
+</html>
